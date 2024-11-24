@@ -1,4 +1,3 @@
-// Test: C++ version of scale
 // Copyright (c) 2024 University of Virginia
 // This file is licensed under the MIT License.
 // See the LICENSE file in the root of this repository for more details.
@@ -37,6 +36,35 @@ struct Packet {
   struct pcap_pkthdr header;
   std::vector<uint8_t> data;
 };
+
+
+class NetworkPimDevice {
+    public:
+        int flowCount;
+        PimObjId src_pim;
+        PimObjId inc_pim;
+
+        NetworkPimDevice(int count) {
+            flowCount = count;
+
+            src_pim = pimAlloc(PIM_ALLOC_AUTO, flowCount, PIM_INT32);
+            assert(src_pim != -1);
+
+            inc_pim = pimAllocAssociated(src_pim, PIM_INT32);
+            assert(inc_pim != -1);
+
+            pimBroadcastUInt(inc_pim, 1);
+        }
+        void increment() {
+            pimAdd(src_pim, inc_pim, src_pim);
+        }
+        int returnCount() {
+            int ret = 0;
+            pimCopyDeviceToHost(src_pim, &ret);
+            return ret;
+        }
+};
+
 
 void usage()
 {
@@ -120,24 +148,22 @@ void printPacketDetails(const Packet& packet) {
 
 void scale(uint64_t vectorLength, const std::vector<int> &src_host, int A, std::vector<int> &dst_host)
 {
-  PimObjId src_pim = pimAlloc(PIM_ALLOC_AUTO, vectorLength, PIM_INT32);
-  assert(src_pim != -1);
 
-  PimObjId dst_pim = pimAllocAssociated(src_pim, PIM_INT32);
-  assert(dst_pim != -1);
+//  PimObjId dst_pim = pimAllocAssociated(src_pim, PIM_INT32);
+  //assert(dst_pim != -1);
 
-  PimStatus status = pimCopyHostToDevice((void *)src_host.data(), src_pim);
-  assert (status == PIM_OK);
+//  PimStatus status = pimCopyHostToDevice((void *)src_host.data(), src_pim);
+  //assert (status == PIM_OK);
 
-  status = pimMulScalar(src_pim, dst_pim, A);
-  assert (status == PIM_OK);
+  //status = pimMulScalar(src_pim, dst_pim, A);
+  //assert (status == PIM_OK);
 
-  dst_host.resize(vectorLength);
-  status = pimCopyDeviceToHost(dst_pim, (void *)dst_host.data());
-  assert (status == PIM_OK);
+  //dst_host.resize(vectorLength);
+  //status = pimCopyDeviceToHost(dst_pim, (void *)dst_host.data());
+  //assert (status == PIM_OK);
 
-  pimFree(src_pim);
-  pimFree(dst_pim);
+ // pimFree(src_pim);
+  //pimFree(dst_pim);
 }
 
 int main(int argc, char* argv[])
@@ -162,7 +188,8 @@ int main(int argc, char* argv[])
   //TODO: Check if vector can fit in one iteration. Otherwise need to run in multiple iteration.
   //scale(params.vectorLength, X, A, Y_device);
 
-
+    
+  int flowCountSize = 1;
   const char* filename = "smallFlows.pcap";
   char errbuf[PCAP_ERRBUF_SIZE];
   pcap_t* pcap = pcap_open_offline(filename, errbuf);
@@ -174,6 +201,9 @@ int main(int argc, char* argv[])
   std::vector<Packet> packets;  // Vector to store packets
   struct pcap_pkthdr* header;
   const uint8_t* data;
+
+  NetworkPimDevice device = NetworkPimDevice(flowCountSize);
+
   while (int ret = pcap_next_ex(pcap, &header, &data) >= 0) {
       Packet packet;
       packet.header = *header;  // Copy the header
@@ -181,11 +211,13 @@ int main(int argc, char* argv[])
       memcpy(packet.data.data(), data, header->caplen);  // Copy the data
       //std::cout << packet.header << "\n";
       packets.push_back(packet);  // Store the packet in memory
+      device.increment();
   }
 
 
-  printPacketDetails(packets[0]);
-
+  //printPacketDetails(packets[0]);
+  cout << "pim count: " << device.returnCount() << "vs vector length: " << packets.size() << "\n";
+  //cout << packets.size() << "\n";
   if (params.shouldVerify) 
   {
     
