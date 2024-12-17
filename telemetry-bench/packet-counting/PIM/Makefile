@@ -12,8 +12,8 @@ ifeq ($(USE_OPENMP),1)
 	CXXFLAGS += -fopenmp
 endif
 
-EXEC := network.out
-SRC := network.cpp
+EXEC := packet-count.out
+SRC := packet-count.cpp
 
 debug perf dramsim3_integ: $(EXEC)
 

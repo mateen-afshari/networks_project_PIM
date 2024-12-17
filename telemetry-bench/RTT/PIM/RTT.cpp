@@ -7,9 +7,8 @@
 #include <netinet/tcp.h>
 #include <netinet/ether.h>
 #include <cassert>
-
-#include "../../util.h"       // Utility for PIM setup
-#include "libpimeval.h"       // PIM library
+#include "../../util.h" // Utility for PIM setup
+#include "libpimeval.h" // PIM library
 
 using namespace std;
 
@@ -36,11 +35,11 @@ void calculateRTT(uint64_t maxPackets, vector<int> &synSecs, vector<int> &synUse
     pimCopyHostToDevice(ackUsecs.data(), ackUsec_pim);
 
     // Calculate RTT on PIM
-    pimSub(ackSec_pim, synSec_pim, rtt_pim);    // RTT_sec = ackSec - synSec
-    pimMulScalar(rtt_pim, rtt_pim, 1000);       // RTT_sec * 1000 (convert to ms)
+    pimSub(ackSec_pim, synSec_pim, rtt_pim);       // RTT_sec = ackSec - synSec
+    pimMulScalar(rtt_pim, rtt_pim, 1000);          // RTT_sec * 1000 (convert to ms)
     pimSub(ackUsec_pim, synUsec_pim, ackUsec_pim); // RTT_usec = ackUsec - synUsec
     pimDivScalar(ackUsec_pim, ackUsec_pim, 1000);  // RTT_usec / 1000
-    pimAdd(rtt_pim, ackUsec_pim, rtt_pim);      // RTT_final = RTT_sec + RTT_usec
+    pimAdd(rtt_pim, ackUsec_pim, rtt_pim);         // RTT_final = RTT_sec + RTT_usec
 
     // Perform reduction to calculate the sum of RTTs
     PimStatus status = pimRedSumInt(rtt_pim, &sumRTT);
@@ -57,9 +56,15 @@ void calculateRTT(uint64_t maxPackets, vector<int> &synSecs, vector<int> &synUse
     pimFree(rtt_pim);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    const char *filename = "../../bigFlows.pcap";
+    if (argc < 2)
+    {
+        cerr << "Usage: " << argv[0] << " <pcap_file>" << endl;
+        return 1;
+    }
+
+    const char *filename = argv[1];
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_t *pcap = pcap_open_offline(filename, errbuf);
 
@@ -82,7 +87,7 @@ int main()
     struct pcap_pkthdr *header;
     const u_char *data;
 
-    cout << "Processing packets..." << endl;
+    cout << "Processing packets from file: " << filename << endl;
 
     while (pcap_next_ex(pcap, &header, &data) >= 0 && synSecs.size() < maxPackets)
     {
