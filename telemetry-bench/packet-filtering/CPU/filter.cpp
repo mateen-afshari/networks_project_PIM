@@ -109,6 +109,7 @@ int main(int argc, char **argv)
     uint64_t buffer_in_CPU = 0;
     uint64_t selectedNum = 0;
 
+<<<<<<< Updated upstream
     // Cache flushing step
     uint64_t dummyVectorSize = 1073741824;
     vector<int> dummyVector1(dummyVectorSize, 0);
@@ -116,6 +117,8 @@ int main(int argc, char **argv)
     {
         dummyVector1[j] += rand() % MY_RANGE;
     }
+=======
+>>>>>>> Stashed changes
 
     // Filter packets by key
     auto start = std::chrono::high_resolution_clock::now();

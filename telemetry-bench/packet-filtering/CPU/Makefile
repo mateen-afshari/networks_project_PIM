@@ -2,7 +2,11 @@
 CXX := g++
 
 # Compiler flags
+<<<<<<< Updated upstream
 CXXFLAGS := -Wall -Wextra -Werror -std=c++17 -O3 -fopenmp -lpcap
+=======
+CXXFLAGS := -Wall -Wextra -Werror -std=c++17 -O3 -fopenmp
+>>>>>>> Stashed changes
 
 # Executable name
 EXEC := filter.out
@@ -16,7 +20,11 @@ SRC_FILES := $(wildcard *.cpp)
 all: $(EXEC)
 
 $(EXEC): $(SRC_FILES) |
+<<<<<<< Updated upstream
 	$(CXX) $(CXXFLAGS) -o $@ $^
+=======
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lpcap
+>>>>>>> Stashed changes
 
 clean:
 	rm -rf $(EXEC)

@@ -1,6 +1,9 @@
+<<<<<<< Updated upstream
 // Copyright (c) 2024 University of Virginia
 // This file is licensed under the MIT License.
 // See the LICENSE file in the root of this repository for more details.
+=======
+>>>>>>> Stashed changes
 
 #include <iostream>
 #include <vector>
@@ -190,7 +193,11 @@ int main(int argc, char* argv[])
 
     
   int flowCountSize = 1;
+<<<<<<< Updated upstream
   const char* filename = "smallFlows.pcap";
+=======
+  const char* filename = "../../smallFlows.pcap";
+>>>>>>> Stashed changes
   char errbuf[PCAP_ERRBUF_SIZE];
   pcap_t* pcap = pcap_open_offline(filename, errbuf);
 
@@ -203,6 +210,7 @@ int main(int argc, char* argv[])
   const uint8_t* data;
 
   NetworkPimDevice device = NetworkPimDevice(flowCountSize);
+<<<<<<< Updated upstream
 
   while (int ret = pcap_next_ex(pcap, &header, &data) >= 0) {
       Packet packet;
@@ -212,6 +220,15 @@ int main(int argc, char* argv[])
       //std::cout << packet.header << "\n";
       packets.push_back(packet);  // Store the packet in memory
       device.increment();
+=======
+  int count = 0;
+
+
+  while (int ret = pcap_next_ex(pcap, &header, &data) >= 0 && count < 1000)
+  {                      
+    device.increment();
+    count ++;
+>>>>>>> Stashed changes
   }
 
 
